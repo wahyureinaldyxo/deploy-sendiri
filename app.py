@@ -14,7 +14,8 @@ model_path = 'saved_model_palm_disease.keras'  # sesuai ekstensi yang kamu simpa
 
 # Unduh model jika belum ada
 if not os.path.exists(model_path):
-    url = 'https://drive.google.com/uc?id=1g-QPUIsySVm1oBl0KXpKKlxe7x_JPe7B'
+    # URL Google Drive yang diperbarui
+    url = 'https://drive.google.com/file/d/1g-QPUIsySVm1oBl0KXpKKlxe7x_JPe7B/view?usp=sharing'
     gdown.download(url, model_path, quiet=False)
 
 # Load model 
