@@ -5,6 +5,7 @@ import numpy as np
 import os
 import gdown
 from PIL import Image
+import io # Import the io module
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ if not os.path.exists(model_path):
     url = 'https://drive.google.com/uc?id=1g-QPUIsySVm1oBl0KXpKKlxe7x_JPe7B'
     gdown.download(url, model_path, quiet=False)
 
-# Load model
+# Load model 
 model = load_model(model_path)
 
 # Label urutan class_name (dari train_generator.class_indices urutan alphabetical)
@@ -34,8 +35,12 @@ def predict():
     file = request.files['image']
     
     try:
-        # Buka gambar dan resize sesuai input model (224x224)
-        img = Image.open(file.stream).convert("RGB").resize((224, 224))
+        # Baca konten gambar dari file.stream ke BytesIO
+        # Ini memastikan PIL dapat membaca data dengan benar
+        img_bytes = io.BytesIO(file.read())
+        
+        # Buka gambar dari BytesIO dan resize sesuai input model (224x224)
+        img = Image.open(img_bytes).convert("RGB").resize((224, 224))
         img_array = image.img_to_array(img)
         img_array = img_array / 255.0  # normalisasi
         img_array = np.expand_dims(img_array, axis=0)
@@ -51,9 +56,12 @@ def predict():
         })
     
     except Exception as e:
+        # Log error untuk debugging lebih lanjut
+        print(f"Error during prediction: {e}") 
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
+    # Gunakan host='0.0.0.0' agar bisa diakses dari luar container/server
     app.run(host='0.0.0.0', port=port)
